@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { IUser } from "./user.interface";
-import { Gender, Sex, UserRole } from "./user.constant";
+import { Gender, UserRole } from "./user.constant";
 import bcrypt from "bcrypt";
 
 const userSchema = new Schema<IUser>(
@@ -20,42 +20,62 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: Object.values(UserRole),
-      default: UserRole.User,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
     verified: {
       type: Boolean,
       default: false,
     },
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
+    companyName: { type: String },
+    dateOfBirth: { type: String },
+    gender: { type: String, enum: Object.values(Gender) },
+    nationality: { type: String },
+    aboutMe: { type: String },
+    salaryExpectations: { type: String },
+    jobPreference: { type: String },
+    languages: { type: [String], default: [] },
+
+    phoneNumber: { type: String },
+    linkedinProfile: { type: String },
+    personalWebsite: { type: String },
+    address: {
+      homeAddress: { type: String },
+      city: { type: String },
+      state: { type: String },
+      country: { type: String },
+      zipCode: { type: String },
     },
-    surname: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    dateOfBirth: {
-      type: String,
-      required: true,
-    },
-    gender: {
-      type: String,
-      enum: Object.values(Gender),
-      required: true,
-    },
-    sex: {
-      type: String,
-      enum: Object.values(Sex),
-      required: true,
-    },
-    deviceTokens: [
+
+    experience: [
       {
-        type: String,
-        default: [],
+        company: { type: String },
+        jobTitle: { type: String },
+        startDate: { type: String },
+        endDate: { type: String },
+        currentlyWorking: { type: Boolean, default: false },
+        jobDescription: { type: String },
       },
     ],
+
+    education: [
+      {
+        institution: { type: String },
+        degree: { type: String },
+        fieldOfStudy: { type: String },
+        grade: { type: String },
+        startYear: { type: String },
+        endYear: { type: String },
+        description: { type: String },
+      },
+    ],
+
+    skills: { type: [String], default: [] },
+    deviceTokens: { type: [String], default: [] },
   },
   {
     timestamps: true,

@@ -1,14 +1,8 @@
 export enum Gender {
   Male = "male",
   Female = "female",
-  NotStated = "not-stated",
-  NonBinary = "non-binary",
   Other = "other",
-}
-
-export enum Sex {
-  Male = "male",
-  Female = "female",
+  NotStated = "not-stated",
 }
 
 export enum UserRole {

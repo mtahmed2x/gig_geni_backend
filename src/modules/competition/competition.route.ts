@@ -14,12 +14,15 @@ router.post(
   auth(UserRole.Employee),
   competitionController.createCompetition
 );
+
 router.get("/", competitionController.getAllCompetition);
+
 router.get(
   "/:id",
   auth(UserRole.Employee),
   competitionController.getCompetitionById
 );
+
 router.patch(
   "/:id",
   fileUpload(),
@@ -27,6 +30,7 @@ router.patch(
   auth(UserRole.Employee),
   competitionController.updateCompetition
 );
+
 router.delete(
   "/:id",
   auth(UserRole.Employee),

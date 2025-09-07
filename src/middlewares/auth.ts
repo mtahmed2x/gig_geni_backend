@@ -1,0 +1,43 @@
+import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import { AppError } from "../errors/appError";
+import { verifyToken } from "../utils/jwtUtils";
+import { User } from "../modules/user/user.models";
+
+export const auth =
+  (...allowedRoles: string[]) =>
+  async (req: Request, _res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next(new AppError(StatusCodes.UNAUTHORIZED, "No token provided"));
+    }
+
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return next(new AppError(StatusCodes.UNAUTHORIZED, "No token provided"));
+    }
+
+    try {
+      const decoded = verifyToken(token);
+
+      if (!decoded?.userId) {
+        return next(new AppError(StatusCodes.UNAUTHORIZED, "Invalid token"));
+      }
+
+      const user = await User.findById(decoded.userId).lean();
+      if (!user) {
+        return next(new AppError(StatusCodes.UNAUTHORIZED, "User not found"));
+      }
+
+      req.user = user;
+
+      if (allowedRoles.length && !allowedRoles.includes(user.role)) {
+        return next(new AppError(StatusCodes.FORBIDDEN, "Access denied"));
+      }
+
+      next();
+    } catch (err) {
+      next(new AppError(StatusCodes.UNAUTHORIZED, "Invalid or expired token"));
+    }
+  };

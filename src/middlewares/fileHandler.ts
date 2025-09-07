@@ -48,6 +48,7 @@ export const fileHandler = async (
                 folder
               );
               req.body[fieldName] = fileUrl;
+              console.log(req.body);
             }
           }
         })

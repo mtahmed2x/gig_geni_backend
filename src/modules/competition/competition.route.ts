@@ -4,22 +4,28 @@ import fileUpload from "express-fileupload";
 import fileHandler from "../../middlewares/fileHandler";
 import { auth } from "../../middlewares/auth";
 import { UserRole } from "../user/user.constant";
+import parseData from "../../middlewares/parseData";
 
 const router: Router = Router();
 
 router.post(
-  "/",
+  "/create",
   fileUpload(),
   fileHandler,
-  auth(UserRole.Employee),
+  parseData(),
+  auth(UserRole.Employer),
   competitionController.createCompetition
 );
 
-router.get("/", competitionController.getAllCompetition);
+router.get(
+  "/",
+  auth(UserRole.Employer),
+  competitionController.getAllCompetition
+);
 
 router.get(
   "/:id",
-  auth(UserRole.Employee),
+  auth(UserRole.Employer),
   competitionController.getCompetitionById
 );
 
@@ -27,13 +33,13 @@ router.patch(
   "/:id",
   fileUpload(),
   fileHandler,
-  auth(UserRole.Employee),
+  auth(UserRole.Employer),
   competitionController.updateCompetition
 );
 
 router.delete(
   "/:id",
-  auth(UserRole.Employee),
+  auth(UserRole.Employer),
   competitionController.deleteCompetition
 );
 

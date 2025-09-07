@@ -10,6 +10,7 @@ export interface IUser {
   verified: boolean;
 
   name: string;
+  companyName: string;
   dateOfBirth: string;
   gender: Gender;
   nationality: string;

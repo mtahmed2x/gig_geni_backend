@@ -10,8 +10,11 @@ const createQuizQuestion = async (payload: Partial<IQuizQuestion>) => {
   return await QuizQuestion.create(payload);
 };
 
-const getAllQuizQuestion = async () => {
-  return await QuizQuestion.find().lean();
+const getAllQuizQuestion = async (payload: { competition?: string }) => {
+  const { competition } = payload;
+  const query: Record<string, unknown> = {};
+  if (competition) query.competition = competition;
+  return await QuizQuestion.find(query).lean();
 };
 
 const getQuizQuestionById = async (id: string) => {

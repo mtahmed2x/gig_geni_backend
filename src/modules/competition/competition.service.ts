@@ -6,8 +6,19 @@ const createCompetition = async (payload: Partial<ICompetition>) => {
   return await Competition.create(payload);
 };
 
-const getAllCompetition = async () => {
-  return await Competition.find().lean();
+const getAllCompetition = async (payload: {
+  user?: string;
+  createdBy: string;
+}) => {
+  const { user, createdBy } = payload;
+  const query: Record<string, unknown> = {};
+  if (user === "true" && createdBy) query.createdBy = createdBy;
+  return await Competition.find(query)
+    .populate([
+      { path: "createdBy", select: "-password" },
+      { path: "participants.user", select: "-password" },
+    ])
+    .lean();
 };
 
 const getCompetitionById = async (id: string) => {

@@ -17,8 +17,8 @@ const createCompetition = handleAsync(async (req: Request, res: Response) => {
 });
 
 const getAllCompetition = handleAsync(async (req: Request, res: Response) => {
-  const query = { ...req.query, createdBy: req.user._id!.toString() };
-  const result = await competitionService.getAllCompetition(req.query);
+  const query = { ...req.query, createdBy: req.user!._id!.toString() };
+  const result = await competitionService.getAllCompetition(query);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

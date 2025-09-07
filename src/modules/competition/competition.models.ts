@@ -1,6 +1,34 @@
 import { model, Schema } from "mongoose";
 import { ICompetition } from "./competition.interface";
 
+const participantSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    round1: {
+      type: String,
+      enum: ["not_started", "pending", "passed", "failed"],
+      default: "not_started",
+    },
+    round2: {
+      type: String,
+      enum: ["not_started", "pending", "approved", "rejected"],
+      default: "not_started",
+    },
+    round3: {
+      type: String,
+      enum: ["not_started", "scheduled", "approved", "rejected"],
+      default: "not_started",
+    },
+    round4: {
+      type: String,
+      enum: ["not_started", "completed", "failed"],
+      default: "not_started",
+    },
+    joinedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const competitionSchema = new Schema<ICompetition>(
   {
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -32,6 +60,8 @@ const competitionSchema = new Schema<ICompetition>(
       },
     ],
     termsAndConditions: { type: [String], default: [] },
+
+    participants: { type: [participantSchema], default: [] },
   },
   { timestamps: true }
 );

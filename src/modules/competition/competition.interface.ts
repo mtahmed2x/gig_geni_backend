@@ -1,5 +1,14 @@
 import { Types } from "mongoose";
 
+export interface IParticipant {
+  user: Types.ObjectId;
+  round1: "not_started" | "pending" | "passed" | "failed";
+  round2: "not_started" | "pending" | "approved" | "rejected";
+  round3: "not_started" | "scheduled" | "approved" | "rejected";
+  round4: "not_started" | "completed" | "failed";
+  joinedAt: Date;
+}
+
 export interface ICompetition {
   _id: Types.ObjectId;
   createdBy: Types.ObjectId;
@@ -12,13 +21,13 @@ export interface ICompetition {
   location: string;
   workType: string;
 
-  skillsTested: string[];
+  skillsTested: string;
   projectBrief: string;
-  evaluationCriteria: string[];
+  evaluationCriteria: string;
 
-  startDate: Date;
-  endDate: Date;
-  resultDate: Date;
+  startDate: string;
+  endDate: string;
+  resultDate: string;
   prize: string;
   maxParticipants?: number;
   registrationFee: "Free" | "Paid";
@@ -26,6 +35,8 @@ export interface ICompetition {
   submissionFormats: string[];
   additionalFiles: { link: string; description?: string }[];
   termsAndConditions: string[];
+
+  participants: IParticipant[];
 
   createdAt: Date;
   updatedAt: Date;

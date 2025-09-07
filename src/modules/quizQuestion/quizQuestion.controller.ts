@@ -15,7 +15,7 @@ const createQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 });
 
 const getAllQuizQuestion = handleAsync(async (req: Request, res: Response) => {
-  const result = await quizQuestionService.getAllQuizQuestion();
+  const result = await quizQuestionService.getAllQuizQuestion(req.query);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -25,7 +25,9 @@ const getAllQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 });
 
 const getQuizQuestionById = handleAsync(async (req: Request, res: Response) => {
-  const result = await quizQuestionService.getQuizQuestionById(req.params.id as string);
+  const result = await quizQuestionService.getQuizQuestionById(
+    req.params.id as string
+  );
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -35,7 +37,10 @@ const getQuizQuestionById = handleAsync(async (req: Request, res: Response) => {
 });
 
 const updateQuizQuestion = handleAsync(async (req: Request, res: Response) => {
-  const result = await quizQuestionService.updateQuizQuestion(req.params.id as string, req.body);
+  const result = await quizQuestionService.updateQuizQuestion(
+    req.params.id as string,
+    req.body
+  );
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -45,7 +50,9 @@ const updateQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 });
 
 const deleteQuizQuestion = handleAsync(async (req: Request, res: Response) => {
-  const result = await quizQuestionService.deleteQuizQuestion(req.params.id as string);
+  const result = await quizQuestionService.deleteQuizQuestion(
+    req.params.id as string
+  );
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

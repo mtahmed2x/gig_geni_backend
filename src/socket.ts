@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { JwtPayload } from "jsonwebtoken";
-import { verifyToken } from "./utils/jwtUtils";
 import { User } from "./modules/user/user.models";
 import { config } from "./config";
+import { verifyAccessToken } from "./utils/jwtUtils";
 
 let io: Server;
 
@@ -24,7 +24,7 @@ export function initSocket(httpServer: HttpServer) {
       if (token.startsWith("Bearer ")) {
         token = token.split(" ")[1];
       }
-      const decoded: JwtPayload = verifyToken(token);
+      const decoded: JwtPayload = verifyAccessToken(token);
       if (!decoded?.userId) {
         return next(new Error("Authentication error: Invalid token"));
       }

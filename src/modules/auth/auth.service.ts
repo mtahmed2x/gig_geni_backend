@@ -3,7 +3,7 @@ import { AppError } from "../../errors/appError";
 import { IUser } from "../user/user.interface";
 import { userService } from "../user/user.service";
 import { otpService } from "../otp/otp.service";
-import { generateToken } from "../../utils/jwtUtils";
+import { generateAuthTokens, verifyRefreshToken } from "../../utils/jwtUtils";
 import { User } from "../user/user.models";
 import { sendEmail } from "../../utils/sendEmail";
 
@@ -20,7 +20,10 @@ const register = async (payload: Partial<IUser>) => {
       StatusCodes.INTERNAL_SERVER_ERROR,
       "Internal server error"
     );
-  const token = generateToken({ userId: user._id.toString(), role: user.role });
+  const { accessToken, refreshToken } = generateAuthTokens({
+    userId: user._id.toString(),
+    role: user.role,
+  });
 
   await sendEmail({
     to: user.email,
@@ -32,7 +35,8 @@ const register = async (payload: Partial<IUser>) => {
 
   return {
     user: safeUser,
-    token,
+    accessToken,
+    refreshToken,
     otp: process.env.NODE_ENV !== "production" ? otp : undefined,
   };
 };
@@ -53,9 +57,14 @@ const verifyOTP = async (userId: string, otp: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
 
+  const { accessToken, refreshToken } = generateAuthTokens({
+    userId: user._id.toString(),
+    role: user.role,
+  });
+
   const { password, ...safeUser } = user;
 
-  return { user: safeUser };
+  return { user: safeUser, accessToken, refreshToken };
 };
 
 const resendOTP = async (user: IUser) => {
@@ -107,11 +116,33 @@ const login = async (
     await user.save();
   }
 
-  const token = generateToken({ userId: user._id.toString(), role: user.role });
+  const { accessToken, refreshToken } = generateAuthTokens({
+    userId: user._id.toString(),
+    role: user.role,
+  });
 
   const { password: _pw, ...safeUser } = user.toObject();
 
-  return { user: safeUser, token };
+  return { user: safeUser, accessToken, refreshToken };
+};
+
+const refresh = async (token: string) => {
+  const decoded = verifyRefreshToken(token);
+  if (!decoded?.userId) {
+    return new AppError(StatusCodes.UNAUTHORIZED, "Invalid token");
+  }
+  const user = await User.findById(decoded.userId);
+  if (!user) {
+    return new AppError(StatusCodes.UNAUTHORIZED, "User not found");
+  }
+  const { accessToken, refreshToken } = generateAuthTokens({
+    userId: user._id.toString(),
+    role: user.role,
+  });
+
+  const { password: _pw, ...safeUser } = user.toObject();
+
+  return { user: safeUser, accessToken, refreshToken };
 };
 
 const logout = async (userId: string, deviceToken: string) => {
@@ -134,5 +165,6 @@ export const authService = {
   verifyOTP,
   resendOTP,
   login,
+  refresh,
   logout,
 };

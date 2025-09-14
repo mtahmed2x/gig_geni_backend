@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { AppError } from "../errors/appError";
-import { verifyToken } from "../utils/jwtUtils";
+import { verifyAccessToken } from "../utils/jwtUtils";
 import { User } from "../modules/user/user.models";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 
 export const auth =
   (...allowedRoles: string[]) =>
@@ -19,7 +20,7 @@ export const auth =
     }
 
     try {
-      const decoded = verifyToken(token);
+      const decoded = verifyAccessToken(token);
 
       if (!decoded?.userId) {
         return next(new AppError(StatusCodes.UNAUTHORIZED, "Invalid token"));
@@ -38,6 +39,24 @@ export const auth =
 
       next();
     } catch (err) {
-      next(new AppError(StatusCodes.UNAUTHORIZED, "Invalid or expired token"));
+      if (err instanceof TokenExpiredError) {
+        return next(
+          new AppError(
+            StatusCodes.UNAUTHORIZED,
+            "Your session has expired. Please log in again."
+          )
+        );
+      }
+      if (err instanceof JsonWebTokenError) {
+        return next(
+          new AppError(
+            StatusCodes.UNAUTHORIZED,
+            "Invalid token. Please log in again."
+          )
+        );
+      }
+      return next(
+        new AppError(StatusCodes.UNAUTHORIZED, "Authentication failed")
+      );
     }
   };

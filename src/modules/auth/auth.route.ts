@@ -22,6 +22,7 @@ router.post(
   auth(UserRole.Employee, UserRole.Employer),
   authController.logout
 );
+router.post("/refresh", authController.refresh);
 // router.get("/:id", authController.getAuthById);
 // router.patch("/:id", authController.updateAuth);
 // router.delete("/:id", authController.deleteAuth);

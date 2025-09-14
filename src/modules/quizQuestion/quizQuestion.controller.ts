@@ -14,6 +14,18 @@ const createQuizQuestion = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
+const generateQuizQuestions = handleAsync(
+  async (req: Request, res: Response) => {
+    const result = await quizQuestionService.generateQuizQuestions(req.body);
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
+      success: true,
+      message: "QuizQuestion successfully created",
+      data: result,
+    });
+  }
+);
+
 const getAllQuizQuestion = handleAsync(async (req: Request, res: Response) => {
   const result = await quizQuestionService.getAllQuizQuestion(req.query);
   sendResponse(res, {
@@ -63,6 +75,7 @@ const deleteQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 
 export const quizQuestionController = {
   createQuizQuestion,
+  generateQuizQuestions,
   getAllQuizQuestion,
   getQuizQuestionById,
   updateQuizQuestion,

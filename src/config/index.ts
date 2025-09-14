@@ -14,8 +14,10 @@ export const config = {
     uri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/pharma-db",
   },
   jwt: {
-    secret: process.env.JWT_SECRET || "supersecret",
-    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+    accessSecret: process.env.JWT_ACCESS_SECRET || "access",
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
+    refreshSecret: process.env.JWT_REFRESH_SECRET || "refresh",
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   },
 };
 

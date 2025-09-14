@@ -7,7 +7,11 @@ import { Types } from "mongoose";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const createQuizQuestion = async (payload: Partial<IQuizQuestion>) => {
-  return await QuizQuestion.create(payload);
+  const quiz = await QuizQuestion.create(payload);
+  const getAllQuizQuestions = getAllQuizQuestion({
+    competition: quiz.competition.toString(),
+  });
+  return getAllQuizQuestions;
 };
 
 const getAllQuizQuestion = async (payload: { competition?: string }) => {
@@ -34,6 +38,8 @@ const deleteQuizQuestion = async (id: string) => {
 
 interface GenerateQuizConfig {
   competitionId: string;
+  category: string;
+  description: string;
   totalQuestions: number;
   difficulty: "easy" | "medium" | "hard";
   distribution: {
@@ -50,9 +56,16 @@ interface GenerateQuizConfig {
 
 const generateQuizQuestions = async (payload: GenerateQuizConfig) => {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
   const {
     competitionId,
+    category,
+    description,
     totalQuestions,
     difficulty,
     distribution,
@@ -71,8 +84,8 @@ You are an expert exam and interview question setter.
 Generate a set of quiz questions based on the following competition details:
 
 Competition Title: ${competition.title}
-Description: ${competition.description}
-Category: ${competition.category}
+Description: ${description}
+Category: ${category}
 Experience Level: ${competition.experienceLevel}
 Skills Tested: ${competition.skillsTested}
 Project Brief: ${competition.projectBrief}
@@ -112,16 +125,22 @@ Instructions:
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
-  const content = response.text();
+  const rawContent = response.text();
+
+  // const cleanedContent = rawContent
+  //   .replace(/^```json\s*/, "")
+  //   .replace(/```$/, "")
+  //   .trim();
 
   let questions: Omit<
     IQuizQuestion,
     "_id" | "competition" | "createdAt" | "updatedAt"
   >[] = [];
+
   try {
-    questions = JSON.parse(content);
+    questions = JSON.parse(rawContent);
   } catch (err) {
-    console.error("Failed to parse AI response:", err, content);
+    console.error("Failed to parse AI response:", err, rawContent);
     throw new Error("AI returned invalid JSON");
   }
 

@@ -10,6 +10,11 @@ router.post(
   auth(UserRole.Employer),
   quizQuestionController.createQuizQuestion
 );
+router.post(
+  "/generate",
+  auth(UserRole.Employer),
+  quizQuestionController.generateQuizQuestions
+);
 router.get("/", quizQuestionController.getAllQuizQuestion);
 router.get(
   "/:id",

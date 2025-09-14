@@ -1,6 +1,8 @@
 import { Types } from "mongoose";
 import { ICompetition } from "./competition.interface";
 import { Competition } from "./competition.models";
+import { AppError } from "../../errors/appError";
+import { StatusCodes } from "http-status-codes";
 
 const createCompetition = async (payload: Partial<ICompetition>) => {
   return await Competition.create(payload);
@@ -22,7 +24,80 @@ const getAllCompetition = async (payload: {
 };
 
 const getCompetitionById = async (id: string) => {
-  return await Competition.findById(id).lean();
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Invalid competition ID format."
+    );
+  }
+
+  const result = await Competition.aggregate([
+    {
+      $match: {
+        _id: new Types.ObjectId(id),
+      },
+    },
+    {
+      $addFields: {
+        stats: {
+          totalParticipants: { $size: "$participants" },
+
+          round1Passed: {
+            $size: {
+              $filter: {
+                input: "$participants",
+                as: "participant",
+                cond: { $eq: ["$$participant.round1", "passed"] },
+              },
+            },
+          },
+
+          // Calculate pending videos for round 2
+          videosPending: {
+            $size: {
+              $filter: {
+                input: "$participants",
+                as: "participant",
+                cond: { $eq: ["$$participant.round2", "pending"] },
+              },
+            },
+          },
+
+          // Calculate scheduled interviews for round 3
+          interviewsScheduled: {
+            $size: {
+              $filter: {
+                input: "$participants",
+                as: "participant",
+                cond: { $eq: ["$$participant.round3", "scheduled"] },
+              },
+            },
+          },
+
+          // Calculate completed for round 4
+          completed: {
+            $size: {
+              $filter: {
+                input: "$participants",
+                as: "participant",
+                cond: { $eq: ["$$participant.round4", "completed"] },
+              },
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  // The aggregation returns an array. If the competition was found, it will be the first element.
+  const competitionWithStats = result[0];
+
+  // If no competition was found, the result array will be empty.
+  if (!competitionWithStats) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Competition not found.");
+  }
+
+  return competitionWithStats;
 };
 
 const updateCompetition = async (

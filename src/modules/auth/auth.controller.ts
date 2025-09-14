@@ -75,20 +75,21 @@ const logout = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const deleteAuth = handleAsync(async (req: Request, res: Response) => {
-//   const result = await authService.deleteAuth(req.params.id as string);
-//   sendResponse(res, {
-//     statusCode: StatusCodes.OK,
-//     success: true,
-//     message: "Auth deleted successfully",
-//     data: result,
-//   });
-// });
+const refresh = handleAsync(async (req: Request, res: Response) => {
+  const result = await authService.refresh(req.body.token as string);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Refresh token fetched successfully",
+    data: result,
+  });
+});
 
 export const authController = {
   register,
   verifyOTP,
   resendOTP,
   login,
+  refresh,
   logout,
 };

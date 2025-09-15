@@ -38,6 +38,13 @@ export interface ICompetition {
 
   participants: IParticipant[];
 
+  status: "active" | "completed" | "draft" | "paused";
+  currentRound: number;
+  totalRounds: number;
+  totalApplicants: number;
+  totalParticipants: number;
+  completionRate: number;
+  views: number;
   createdAt: Date;
   updatedAt: Date;
 }

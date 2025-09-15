@@ -17,15 +17,21 @@ router.post(
   competitionController.createCompetition
 );
 
+router.post(
+  "/:id/join",
+  auth(UserRole.Employee),
+  competitionController.joinCompetition
+);
+
 router.get(
   "/",
-  auth(UserRole.Employer),
+  auth(UserRole.Employer, UserRole.Employee),
   competitionController.getAllCompetition
 );
 
 router.get(
   "/:id",
-  auth(UserRole.Employer),
+  auth(UserRole.Employer, UserRole.Employee),
   competitionController.getCompetitionById
 );
 

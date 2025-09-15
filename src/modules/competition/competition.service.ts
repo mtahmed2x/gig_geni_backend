@@ -10,11 +10,20 @@ const createCompetition = async (payload: Partial<ICompetition>) => {
 
 const getAllCompetition = async (payload: {
   user?: string;
-  createdBy: string;
+  userId?: string;
+  participant?: string;
 }) => {
-  const { user, createdBy } = payload;
+  const { user, userId, participant } = payload;
   const query: Record<string, unknown> = {};
-  if (user === "true" && createdBy) query.createdBy = createdBy;
+
+  if (user === "true" && userId) {
+    query.createdBy = userId;
+  }
+
+  if (participant === "true" && userId) {
+    query["participants.user"] = userId;
+  }
+
   return await Competition.find(query)
     .populate([
       { path: "createdBy", select: "-password" },
@@ -100,6 +109,22 @@ const getCompetitionById = async (id: string) => {
   return competitionWithStats;
 };
 
+const joinCompetition = async (userId: string, competitionId: string) => {
+  const competition = await Competition.findById(competitionId);
+  if (!competition)
+    throw new AppError(StatusCodes.NOT_FOUND, "Competition not found");
+  competition.participants.push({
+    user: new Types.ObjectId(userId),
+    round1: "not_started",
+    round2: "not_started",
+    round3: "not_started",
+    round4: "not_started",
+    joinedAt: new Date(),
+  });
+  await competition.save();
+  return competition;
+};
+
 const updateCompetition = async (
   id: string,
   payload: Partial<ICompetition>
@@ -157,4 +182,5 @@ export const competitionService = {
   updateCompetition,
   deleteCompetition,
   getCompetitionStats,
+  joinCompetition,
 };

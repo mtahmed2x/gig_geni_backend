@@ -62,6 +62,17 @@ const competitionSchema = new Schema<ICompetition>(
     termsAndConditions: { type: [String], default: [] },
 
     participants: { type: [participantSchema], default: [] },
+    status: {
+      type: String,
+      enum: ["active", "completed", "paused", "draft"],
+      default: "active",
+    },
+    currentRound: { type: Number, default: 1 },
+    totalRounds: { type: Number, default: 4 },
+    totalApplicants: { type: Number, default: 1 },
+    totalParticipants: { type: Number, default: 1 },
+    completionRate: { type: Number, default: 0 },
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

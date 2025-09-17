@@ -14,6 +14,17 @@ const getAllUser = handleAsync(async (_req: Request, res: Response) => {
   });
 });
 
+const getProfile = handleAsync(async (req: Request, res: Response) => {
+  const userId = req.user!._id.toString();
+  const result = await userService.getUserById(userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User profile successfully",
+    data: result,
+  });
+});
+
 const getUserById = handleAsync(async (req: Request, res: Response) => {
   const result = await userService.getUserById(req.params.id as string);
   sendResponse(res, {
@@ -26,7 +37,7 @@ const getUserById = handleAsync(async (req: Request, res: Response) => {
 
 const updateUser = handleAsync(async (req: Request, res: Response) => {
   const result = await userService.updateUser(
-    req.params.id as string,
+    req.user!._id.toString(),
     req.body
   );
   sendResponse(res, {
@@ -52,4 +63,5 @@ export const userController = {
   getUserById,
   updateUser,
   deleteUser,
+  getProfile,
 };

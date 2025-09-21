@@ -19,19 +19,19 @@ router.post(
 
 router.post(
   "/:id/join",
-  auth(UserRole.Talent),
+  auth(UserRole.Employee),
   competitionController.joinCompetition
 );
 
 router.get(
   "/",
-  auth(UserRole.Employer, UserRole.Talent),
+  auth(UserRole.Employer, UserRole.Employee),
   competitionController.getAllCompetition
 );
 
 router.get(
   "/:id",
-  auth(UserRole.Employer, UserRole.Talent),
+  auth(UserRole.Employer, UserRole.Employee),
   competitionController.getCompetitionById
 );
 

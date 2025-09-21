@@ -7,14 +7,14 @@ const router: Router = Router();
 
 router.get(
   "/profile",
-  auth(UserRole.Talent, UserRole.Employer),
+  auth(UserRole.Employee, UserRole.Employer),
   userController.getProfile
 );
 router.get("/", userController.getAllUser);
 router.get("/:id", userController.getUserById);
 router.patch(
   "/update",
-  auth(UserRole.Talent, UserRole.Employer),
+  auth(UserRole.Employee, UserRole.Employer),
   userController.updateUser
 );
 router.delete("/:id", userController.deleteUser);

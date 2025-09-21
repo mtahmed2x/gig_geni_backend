@@ -31,7 +31,7 @@ const calculateProfileCompletion = (user: Partial<IUser>) => {
 
   let roleSpecificFields: any[] = [];
 
-  if (user.role === UserRole.Talent) {
+  if (user.role === UserRole.Employee) {
     roleSpecificFields = [
       user.jobPreference,
       user.salaryExpectations,

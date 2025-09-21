@@ -8,18 +8,18 @@ const router: Router = Router();
 router.post("/register", authController.register);
 router.post(
   "/verifyOTP",
-  auth(UserRole.Talent, UserRole.Employer),
+  auth(UserRole.Employee, UserRole.Employer),
   authController.verifyOTP
 );
 router.post(
   "/resendOTP",
-  auth(UserRole.Talent, UserRole.Employer),
+  auth(UserRole.Employee, UserRole.Employer),
   authController.resendOTP
 );
 router.post("/login", authController.login);
 router.post(
   "/logout",
-  auth(UserRole.Talent, UserRole.Employer),
+  auth(UserRole.Employee, UserRole.Employer),
   authController.logout
 );
 router.post("/refresh", authController.refresh);

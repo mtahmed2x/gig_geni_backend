@@ -8,5 +8,5 @@ export enum Gender {
 export enum UserRole {
   Admin = "admin",
   Employer = "employer",
-  Employee = "employee",
+  Talent = "talent",
 }

@@ -26,7 +26,6 @@ export const fileHandler = async (
     ];
 
     const files = req.files as FileArray | undefined;
-    console.log(files);
 
     if (files) {
       await Promise.all(

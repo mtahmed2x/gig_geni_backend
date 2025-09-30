@@ -17,6 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
+app.get("/", (_req, res) => {
+  res.status(StatusCodes.OK).json({ message: "API is healthy 🚀" });
+});
+
 app.get("/health", (_req, res) => {
   res.status(StatusCodes.OK).json({ message: "API is healthy 🚀" });
 });

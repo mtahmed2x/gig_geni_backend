@@ -62,10 +62,21 @@ const deleteQuizAnswer = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
+const evaluate = handleAsync(async (req: Request, res: Response) => {
+  const result = await quizAnswerService.evaluate(req.body.competitionId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Quiz evaluated successfully",
+    data: result,
+  });
+});
+
 export const quizAnswerController = {
   createQuizAnswer,
   getAllQuizAnswer,
   getQuizAnswerById,
   updateQuizAnswer,
   deleteQuizAnswer,
+  evaluate,
 };

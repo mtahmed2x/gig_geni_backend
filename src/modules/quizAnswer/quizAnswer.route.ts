@@ -10,6 +10,11 @@ router.post(
   auth(UserRole.Employee),
   quizAnswerController.createQuizAnswer
 );
+router.post(
+  "/evaluate",
+  auth(UserRole.Employee),
+  quizAnswerController.evaluate
+);
 router.get("/", quizAnswerController.getAllQuizAnswer);
 router.get("/:id", quizAnswerController.getQuizAnswerById);
 router.patch("/:id", quizAnswerController.updateQuizAnswer);

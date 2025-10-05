@@ -14,6 +14,22 @@ const createQuizQuestion = async (payload: Partial<IQuizQuestion>) => {
   return getAllQuizQuestions;
 };
 
+const addMultipleQuizQuestions = async (
+  competitionId: string,
+  questions: Partial<IQuizQuestion>[]
+) => {
+  const docsToInsert = questions.map((q) => ({
+    ...q,
+    competition: new Types.ObjectId(competitionId),
+  }));
+
+  if (docsToInsert.length === 0) {
+    return await QuizQuestion.find({ competition: competitionId }).lean();
+  }
+  await QuizQuestion.insertMany(docsToInsert);
+  return await QuizQuestion.find({ competition: competitionId }).lean();
+};
+
 const getAllQuizQuestion = async (payload: { competition?: string }) => {
   const { competition } = payload;
   const query: Record<string, unknown> = {};
@@ -134,23 +150,16 @@ Instructions:
 
   try {
     questions = JSON.parse(rawContent);
+    return questions;
   } catch (err) {
     console.error("Failed to parse AI response:", err, rawContent);
     throw new Error("AI returned invalid JSON");
   }
-
-  const docs = questions.map((q) => ({
-    ...q,
-    competition: new Types.ObjectId(competitionId),
-  }));
-
-  const saved = await QuizQuestion.insertMany(docs);
-
-  return saved;
 };
 
 export const quizQuestionService = {
   createQuizQuestion,
+  addMultipleQuizQuestions,
   getAllQuizQuestion,
   getQuizQuestionById,
   updateQuizQuestion,

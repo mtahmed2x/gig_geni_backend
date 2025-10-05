@@ -10,6 +10,13 @@ router.post(
   auth(UserRole.Employer),
   quizQuestionController.createQuizQuestion
 );
+
+router.post(
+  "/create-multiple",
+  auth(UserRole.Employer),
+  quizQuestionController.addMultipleQuizQuestions
+);
+
 router.post(
   "/generate",
   auth(UserRole.Employer),

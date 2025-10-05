@@ -6,6 +6,8 @@ import { AppError } from "../../errors/appError";
 import { Types } from "mongoose";
 import { QuestionType } from "../quizQuestion/quizQuestion.constant";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { QuizSettings } from "../quizSettings/quizSettings.models";
+import { Competition } from "../competition/competition.models";
 
 export const createQuizAnswer = async (payload: Partial<IQuizAnswer>) => {
   const { userId, competitionId, questionId, answer } = payload;
@@ -20,9 +22,9 @@ export const createQuizAnswer = async (payload: Partial<IQuizAnswer>) => {
 
   if (
     !answer ||
-    answer.value === null ||
-    answer.value === "" ||
-    (Array.isArray(answer.value) && answer.value.length === 0)
+    answer === null ||
+    answer === "" ||
+    (Array.isArray(answer) && answer.length === 0)
   ) {
     return await QuizAnswer.create({
       userId: new Types.ObjectId(userId),
@@ -42,21 +44,17 @@ export const createQuizAnswer = async (payload: Partial<IQuizAnswer>) => {
   ) {
     if (question.type === QuestionType.Single) {
       isCorrect =
-        typeof answer.value === "string" &&
-        answer.value === question.correctAnswer;
+        typeof answer === "string" && answer === question.correctAnswer;
     } else if (question.type === QuestionType.Multiple) {
-      if (
-        Array.isArray(answer.value) &&
-        Array.isArray(question.correctAnswer)
-      ) {
-        const given = new Set(answer.value);
+      if (Array.isArray(answer) && Array.isArray(question.correctAnswer)) {
+        const given = new Set(answer);
         const correct = new Set(question.correctAnswer);
         isCorrect =
           given.size === correct.size &&
           [...given].every((val) => correct.has(val));
       }
     } else if (question.type === QuestionType.TrueFalse) {
-      isCorrect = answer.value === question.correctAnswer;
+      isCorrect = answer === question.correctAnswer;
     }
 
     if (isCorrect) pointsAwarded = question.points;
@@ -78,7 +76,7 @@ Evaluate the following student's answer against the correct answer.
 
 Question: ${question.question}
 Correct Answer: ${question.correctAnswer}
-Student Answer: ${answer.value}
+Student Answer: ${answer}
 
 Rules:
 1. Reply in JSON.
@@ -133,10 +131,57 @@ const deleteQuizAnswer = async (id: string) => {
   return await QuizAnswer.findByIdAndDelete(id);
 };
 
+const evaluate = async (competitionId: string) => {
+  const competition = await Competition.findById(competitionId);
+  if (!competition)
+    throw new AppError(StatusCodes.NOT_FOUND, "Competition not found");
+  const settings = await QuizSettings.findOne({ competitionId }).lean();
+  if (!settings)
+    throw new AppError(StatusCodes.NOT_FOUND, "Quiz settings not found");
+
+  const answers = await QuizAnswer.find({ competitionId }).lean();
+  if (!answers || answers.length === 0) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      "No quiz answers found for this competition"
+    );
+  }
+
+  const totalPoints = answers.reduce(
+    (sum, answer) => sum + (answer.pointsAwarded || 0),
+    0
+  );
+  if (totalPoints < settings.passingScore) {
+    return {
+      message:
+        "You have not passed the quiz. You need to score at least " +
+        settings.passingScore +
+        " points to pass.",
+      totalPoints,
+      passingScore: settings.passingScore,
+    };
+  } else {
+    competition.participants.push({
+      user: answers[0]!.userId,
+      round1: "passed",
+      round2: "not_started",
+      round3: "not_started",
+      round4: "not_started",
+      joinedAt: new Date(),
+    });
+    return {
+      message: "Congratulations! You have passed the quiz.",
+      totalPoints,
+      passingScore: settings.passingScore,
+    };
+  }
+};
+
 export const quizAnswerService = {
   createQuizAnswer,
   getAllQuizAnswer,
   getQuizAnswerById,
   updateQuizAnswer,
   deleteQuizAnswer,
+  evaluate,
 };

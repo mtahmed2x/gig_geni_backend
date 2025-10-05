@@ -5,10 +5,12 @@ import { notificationRoutes } from "../modules/notification/notification.route";
 import { competitionRoutes } from "../modules/competition/competition.route";
 import { quizQuestionRoutes } from "../modules/quizQuestion/quizQuestion.route";
 import { quizAnswerRoutes } from "../modules/quizAnswer/quizAnswer.route";
+import { quizSettingsRoutes } from "../modules/quizSettings/quizSettings.route";
 
 const router: Router = Router();
 
 const moduleRoutes = [
+  { path: "/quizSettings", route: quizSettingsRoutes },
   { path: "/quizAnswer", route: quizAnswerRoutes },
   { path: "/quiz-question", route: quizQuestionRoutes },
   { path: "/competition", route: competitionRoutes },

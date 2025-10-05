@@ -1,5 +1,4 @@
 import { Types } from "mongoose";
-import { QuizAnswerValue } from "./quizAnswer.constant";
 
 export interface IQuizAnswer {
   _id: Types.ObjectId;
@@ -7,7 +6,7 @@ export interface IQuizAnswer {
   competitionId: Types.ObjectId;
   questionId: Types.ObjectId;
 
-  answer?: QuizAnswerValue;
+  answer?: string | string[] | boolean | null;
 
   isCorrect?: boolean;
   pointsAwarded?: number;

@@ -14,6 +14,21 @@ const createQuizQuestion = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
+const addMultipleQuizQuestions = handleAsync(
+  async (req: Request, res: Response) => {
+    const result = await quizQuestionService.addMultipleQuizQuestions(
+      req.body.competitionId,
+      req.body.questions
+    );
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
+      success: true,
+      message: "QuizQuestions successfully added",
+      data: result,
+    });
+  }
+);
+
 const generateQuizQuestions = handleAsync(
   async (req: Request, res: Response) => {
     const result = await quizQuestionService.generateQuizQuestions(req.body);
@@ -75,6 +90,7 @@ const deleteQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 
 export const quizQuestionController = {
   createQuizQuestion,
+  addMultipleQuizQuestions,
   generateQuizQuestions,
   getAllQuizQuestion,
   getQuizQuestionById,

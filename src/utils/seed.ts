@@ -15,8 +15,7 @@ export const bootstrapAdmin = async () => {
         password: config.admin.password,
         role: UserRole.Admin,
         verified: true,
-        firstName: "Admin",
-        surname: "User",
+        name: "Admin",
       });
       console.log("🚀 Admin user bootstrapped successfully!");
     } else {

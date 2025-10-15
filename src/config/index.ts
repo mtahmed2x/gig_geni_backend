@@ -13,6 +13,10 @@ export const config = {
   db: {
     uri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/pharma-db",
   },
+  admin: {
+    email: process.env.ADMIN_EMAIL!,
+    password: process.env.ADMIN_PASSWORD!,
+  },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || "access",
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",

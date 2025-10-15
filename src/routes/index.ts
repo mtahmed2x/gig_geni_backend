@@ -6,10 +6,16 @@ import { competitionRoutes } from "../modules/competition/competition.route";
 import { quizQuestionRoutes } from "../modules/quizQuestion/quizQuestion.route";
 import { quizAnswerRoutes } from "../modules/quizAnswer/quizAnswer.route";
 import { quizSettingsRoutes } from "../modules/quizSettings/quizSettings.route";
+import { contactRoutes } from "../modules/contact/contact.route";
+import { privacyPolicyRoutes } from "../modules/privacyPolicy/privacyPolicy.route";
+import { termsAndConditionsRoutes } from "../modules/termsAndConditions/termsAndConditions.route";
 
 const router: Router = Router();
 
 const moduleRoutes = [
+  { path: "/termsAndConditions", route: termsAndConditionsRoutes },
+  { path: "/privacyPolicy", route: privacyPolicyRoutes },
+  { path: "/contact", route: contactRoutes },
   { path: "/quizSettings", route: quizSettingsRoutes },
   { path: "/quizAnswer", route: quizAnswerRoutes },
   { path: "/quiz-question", route: quizQuestionRoutes },

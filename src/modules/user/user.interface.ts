@@ -9,6 +9,8 @@ export interface IUser {
   password: string;
   role: UserRole;
   verified: boolean;
+  active: boolean;
+  suspended: boolean;
   name: string;
   dateOfBirth?: string | null;
   gender?: Gender | null;

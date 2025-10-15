@@ -93,6 +93,14 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    suspended: {
+      type: Boolean,
+      default: false,
+    },
     dateOfBirth: { type: String, default: null },
     gender: { type: String, enum: Object.values(Gender), default: null },
     nationality: { type: String, default: null },

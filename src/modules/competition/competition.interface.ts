@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { ReviewStatus, Status } from "./competition.constant";
 
 export interface IParticipant {
   user: Types.ObjectId;
@@ -38,13 +39,17 @@ export interface ICompetition {
 
   participants: IParticipant[];
 
-  status: "active" | "completed" | "draft" | "paused";
+  status: Status;
   currentRound: number;
   totalRounds: number;
   totalApplicants: number;
   totalParticipants: number;
   completionRate: number;
   views: number;
+
+  reviewStatus: ReviewStatus;
+  reviewFeedback?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }

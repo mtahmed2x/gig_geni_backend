@@ -9,10 +9,12 @@ import { quizSettingsRoutes } from "../modules/quizSettings/quizSettings.route";
 import { contactRoutes } from "../modules/contact/contact.route";
 import { privacyPolicyRoutes } from "../modules/privacyPolicy/privacyPolicy.route";
 import { termsAndConditionsRoutes } from "../modules/termsAndConditions/termsAndConditions.route";
+import { adminDashboardRoutes } from "../modules/adminDashboard/adminDashboard.route";
 
 const router: Router = Router();
 
 const moduleRoutes = [
+  { path: "/adminDashboard", route: adminDashboardRoutes },
   { path: "/termsAndConditions", route: termsAndConditionsRoutes },
   { path: "/privacyPolicy", route: privacyPolicyRoutes },
   { path: "/contact", route: contactRoutes },

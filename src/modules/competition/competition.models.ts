@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { ICompetition } from "./competition.interface";
+import { ReviewStatus, Status } from "./competition.constant";
 
 const participantSchema = new Schema(
   {
@@ -64,8 +65,8 @@ const competitionSchema = new Schema<ICompetition>(
     participants: { type: [participantSchema], default: [] },
     status: {
       type: String,
-      enum: ["active", "completed", "paused", "draft"],
-      default: "active",
+      enum: Object.values(Status),
+      default: Status.Active,
     },
     currentRound: { type: Number, default: 1 },
     totalRounds: { type: Number, default: 4 },
@@ -73,6 +74,13 @@ const competitionSchema = new Schema<ICompetition>(
     totalParticipants: { type: Number, default: 1 },
     completionRate: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
+
+    reviewStatus: {
+      type: String,
+      enum: Object.values(ReviewStatus),
+      default: ReviewStatus.Pending,
+    },
+    reviewFeedback: { type: String, default: null },
   },
   { timestamps: true }
 );

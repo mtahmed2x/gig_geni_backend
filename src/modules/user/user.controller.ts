@@ -37,7 +37,7 @@ const getUserById = handleAsync(async (req: Request, res: Response) => {
 
 const updateUser = handleAsync(async (req: Request, res: Response) => {
   const result = await userService.updateUser(
-    req.user!._id.toString(),
+    req.params.userId || req.user!._id.toString(),
     req.body
   );
   sendResponse(res, {

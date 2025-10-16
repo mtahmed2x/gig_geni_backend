@@ -10,10 +10,12 @@ import { contactRoutes } from "../modules/contact/contact.route";
 import { privacyPolicyRoutes } from "../modules/privacyPolicy/privacyPolicy.route";
 import { termsAndConditionsRoutes } from "../modules/termsAndConditions/termsAndConditions.route";
 import { adminDashboardRoutes } from "../modules/adminDashboard/adminDashboard.route";
+import { homeRoutes } from "../modules/home/home.route";
 
 const router: Router = Router();
 
 const moduleRoutes = [
+  { path: "/home", route: homeRoutes },
   { path: "/adminDashboard", route: adminDashboardRoutes },
   { path: "/termsAndConditions", route: termsAndConditionsRoutes },
   { path: "/privacyPolicy", route: privacyPolicyRoutes },

@@ -25,13 +25,13 @@ router.post(
 
 router.get(
   "/",
-  auth(UserRole.Employer, UserRole.Employee),
+  auth(UserRole.Employer, UserRole.Employee, UserRole.Admin),
   competitionController.getAllCompetition
 );
 
 router.get(
   "/:id",
-  auth(UserRole.Employer, UserRole.Employee),
+  auth(UserRole.Employer, UserRole.Employee, UserRole.Admin),
   competitionController.getCompetitionById
 );
 

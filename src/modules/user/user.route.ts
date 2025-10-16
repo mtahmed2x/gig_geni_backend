@@ -12,6 +12,7 @@ router.get(
 );
 router.get("/", userController.getAllUser);
 router.get("/:id", userController.getUserById);
+router.patch("/update/:id", auth(UserRole.Admin), userController.updateUser);
 router.patch(
   "/update",
   auth(UserRole.Employee, UserRole.Employer),

@@ -36,10 +36,10 @@ router.get(
 );
 
 router.patch(
-  "/:id",
+  "/update/:id",
   fileUpload(),
   fileHandler,
-  auth(UserRole.Employer),
+  auth(UserRole.Employer, UserRole.Admin),
   competitionController.updateCompetition
 );
 

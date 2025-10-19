@@ -15,19 +15,6 @@ const createCompetition = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
-const joinCompetition = handleAsync(async (req: Request, res: Response) => {
-  const result = await competitionService.joinCompetition(
-    req.user!._id.toString(),
-    req.params.id!
-  );
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Joined Competition successfully",
-    data: result,
-  });
-});
-
 const getAllCompetition = handleAsync(async (req: Request, res: Response) => {
   const query = { ...req.query, userId: req.user!._id!.toString() };
   const result = await competitionService.getAllCompetition(query);
@@ -78,7 +65,6 @@ const deleteCompetition = handleAsync(async (req: Request, res: Response) => {
 
 export const competitionController = {
   createCompetition,
-  joinCompetition,
   getAllCompetition,
   getCompetitionById,
   updateCompetition,

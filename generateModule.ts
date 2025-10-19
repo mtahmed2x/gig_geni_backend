@@ -62,7 +62,7 @@ const create${moduleNameCased} = handleAsync(async (req: Request, res: Response)
   });
 });
 
-const getAll${moduleNameCased} = handleAsync(async (req: Request, res: Response) => {
+const getAll${moduleNameCased} = handleAsync(async (_req: Request, res: Response) => {
   const result = await ${moduleName}Service.getAll${moduleNameCased}();
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -115,11 +115,11 @@ import { ${moduleName}Controller } from "./${moduleName}.controller";
 
 const router: Router = Router();
 
-router.post("/", ${moduleName}Controller.create${moduleNameCased});
+router.post("/create", ${moduleName}Controller.create${moduleNameCased});
 router.get("/", ${moduleName}Controller.getAll${moduleNameCased});
 router.get("/:id", ${moduleName}Controller.get${moduleNameCased}ById);
-router.patch("/:id", ${moduleName}Controller.update${moduleNameCased});
-router.delete("/:id", ${moduleName}Controller.delete${moduleNameCased});
+router.patch("/update/:id", ${moduleName}Controller.update${moduleNameCased});
+router.delete("/delete/:id", ${moduleName}Controller.delete${moduleNameCased});
 
 export const ${moduleName}Routes = router;`,
 

@@ -30,10 +30,22 @@ const getAllAdminDashboard = async () => {
     .sort({ createdAt: -1 })
     .limit(10)
     .lean();
+  const competitionPopulateOptions = [
+    { path: "createdBy", select: "-password" },
+    {
+      path: "participants",
+      populate: {
+        path: "user",
+        select: "-password",
+      },
+    },
+  ];
+
   const competitions = await Competition.find({ status: Status.Active })
     .sort({ createdAt: -1 })
     .limit(10)
-    .lean();
+    .populate(competitionPopulateOptions)
+    .lean({ virtuals: true });
 
   return {
     totalUsers,
@@ -98,22 +110,22 @@ const getAllUser = async (payload: {
     User.countDocuments({ role: { $ne: UserRole.Admin }, verified: true }),
   ]);
 
-  const data = {
-    totalUsers,
-    activeUsers,
-    suspendedUsers,
-    employeeCount,
-    employerCount,
-    verifiedUsers,
-    totalRevenue: "125,000",
-    growthRate: "15.3",
-    users,
-  };
-
   const totalPage = Math.ceil(total / limit);
 
   return {
-    data,
+    data: {
+      stats: {
+        totalUsers,
+        activeUsers,
+        suspendedUsers,
+        employeeCount,
+        employerCount,
+        verifiedUsers,
+        totalRevenue: "125,000",
+        growthRate: "15.3",
+      },
+      users,
+    },
     meta: {
       page,
       limit,
@@ -129,41 +141,79 @@ const getAllCompetition = async (payload: {
 }) => {
   const page = parseInt(String(payload.page ?? 1), 10);
   const limit = parseInt(String(payload.limit ?? 10), 10);
-
   const skip = (page - 1) * limit;
 
-  const [
-    competitions,
-    total,
-    totalPendingCompetitions,
-    totalApprovedCompetitions,
-    totalActiveCompetitions,
-    totalCompletedCompetitions,
-    totalRejectedCompetitions,
-  ] = await Promise.all([
-    Competition.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-    Competition.countDocuments(),
-    Competition.countDocuments({ reviewStatus: ReviewStatus.Pending }),
-    Competition.countDocuments({ reviewStatus: ReviewStatus.Approved }),
-    Competition.countDocuments({ status: Status.Active }),
-    Competition.countDocuments({ status: Status.Completed }),
-    Competition.countDocuments({ status: ReviewStatus.Rejected }),
+  const result = await Competition.aggregate([
+    {
+      $facet: {
+        data: [
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ],
+        metadata: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 },
+              totalPendingCompetitions: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$reviewStatus", ReviewStatus.Pending] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              totalApprovedCompetitions: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$reviewStatus", ReviewStatus.Approved] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              totalActiveCompetitions: {
+                $sum: { $cond: [{ $eq: ["$status", Status.Active] }, 1, 0] },
+              },
+              totalCompletedCompetitions: {
+                $sum: { $cond: [{ $eq: ["$status", Status.Completed] }, 1, 0] },
+              },
+              totalRejectedCompetitions: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$reviewStatus", ReviewStatus.Rejected] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
   ]);
 
-  const data = {
-    totalPendingCompetitions,
-    totalApprovedCompetitions,
-    totalActiveCompetitions,
-    totalCompletedCompetitions,
-    totalRejectedCompetitions,
-    competitions,
-    total,
-  };
+  const competitions = result[0].data;
+  const countsData = result[0].metadata[0] || {};
 
+  const total = countsData.total || 0;
   const totalPage = Math.ceil(total / limit);
 
   return {
-    data,
+    data: {
+      stats: {
+        totalPendingCompetitions: countsData.totalPendingCompetitions || 0,
+        totalApprovedCompetitions: countsData.totalApprovedCompetitions || 0,
+        totalActiveCompetitions: countsData.totalActiveCompetitions || 0,
+        totalCompletedCompetitions: countsData.totalCompletedCompetitions || 0,
+        totalRejectedCompetitions: countsData.totalRejectedCompetitions || 0,
+      },
+      competitions,
+    },
+
     meta: {
       page,
       limit,

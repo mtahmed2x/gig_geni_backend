@@ -29,7 +29,6 @@ const quizQuestionSchema = new Schema<IQuizQuestion>(
       enum: ["easy", "medium", "hard"],
       required: true,
     },
-    category: { type: String, required: true },
   },
   { timestamps: true }
 );

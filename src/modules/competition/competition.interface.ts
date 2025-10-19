@@ -1,15 +1,6 @@
 import { Types } from "mongoose";
 import { ReviewStatus, Status } from "./competition.constant";
 
-export interface IParticipant {
-  user: Types.ObjectId;
-  round1: "not_started" | "pending" | "passed" | "failed";
-  round2: "not_started" | "pending" | "approved" | "rejected";
-  round3: "not_started" | "scheduled" | "approved" | "rejected";
-  round4: "not_started" | "completed" | "failed";
-  joinedAt: Date;
-}
-
 export interface ICompetition {
   _id: Types.ObjectId;
   createdBy: Types.ObjectId;
@@ -17,7 +8,7 @@ export interface ICompetition {
   bannerImage: string;
   title: string;
   description: string;
-  category: string;
+  category: string[];
   experienceLevel: string;
   location: string;
   workType: string;
@@ -37,18 +28,18 @@ export interface ICompetition {
   additionalFiles: { link: string; description?: string }[];
   termsAndConditions: string[];
 
-  participants: IParticipant[];
+  quizSettings: {
+    passingScore: number;
+    timeLimit: number;
+    randomizeQuestions: boolean;
+    showResults: boolean;
+  };
 
-  status: Status;
-  currentRound: number;
-  totalRounds: number;
-  totalApplicants: number;
   totalParticipants: number;
-  completionRate: number;
-  views: number;
 
   reviewStatus: ReviewStatus;
   reviewFeedback?: string;
+  status: Status;
 
   createdAt: Date;
   updatedAt: Date;

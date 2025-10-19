@@ -3,6 +3,8 @@ import { ICompetition } from "./competition.interface";
 import { Competition } from "./competition.models";
 import { AppError } from "../../errors/appError";
 import { StatusCodes } from "http-status-codes";
+import { Participant } from "../participant/participant.models";
+import { User } from "../user/user.models";
 
 const createCompetition = async (payload: Partial<ICompetition>) => {
   return await Competition.create(payload);
@@ -14,22 +16,50 @@ const getAllCompetition = async (payload: {
   participant?: string;
 }) => {
   const { user, userId, participant } = payload;
-  const query: Record<string, unknown> = {};
+
+  // Define the populate options once to reuse them
+  const populateOptions = [
+    { path: "createdBy", select: "-password" },
+    // This is the new, nested populate for participants and their users
+    {
+      path: "participants", // This populates the virtual field we defined
+      populate: {
+        path: "user", // In each participant, populate the 'user' field
+        select: "-password", // Exclude the password
+      },
+    },
+  ];
 
   if (user === "true" && userId) {
-    query.createdBy = userId;
+    const query = { createdBy: new Types.ObjectId(userId) };
+    return await Competition.find(query)
+      .populate(populateOptions)
+      .lean({ virtuals: true });
   }
 
   if (participant === "true" && userId) {
-    query["participants.user"] = userId;
+    const participantEntries = await Participant.find({
+      user: new Types.ObjectId(userId),
+    })
+      .select("competition")
+      .lean();
+
+    const competitionIds = participantEntries.map((p) => p.competition);
+
+    if (competitionIds.length === 0) {
+      return [];
+    }
+
+    const query = { _id: { $in: competitionIds } };
+    return await Competition.find(query)
+      .populate(populateOptions)
+      .lean({ virtuals: true });
   }
 
-  return await Competition.find(query)
-    .populate([
-      { path: "createdBy", select: "-password" },
-      { path: "participants.user", select: "-password" },
-    ])
-    .lean();
+  // Default case: get all competitions
+  return await Competition.find({})
+    .populate(populateOptions)
+    .lean({ virtuals: true });
 };
 
 const getCompetitionById = async (id: string) => {
@@ -47,49 +77,56 @@ const getCompetitionById = async (id: string) => {
       },
     },
     {
+      $lookup: {
+        from: "participants",
+        localField: "_id",
+        foreignField: "competition",
+        as: "participants",
+      },
+    },
+    {
       $addFields: {
         stats: {
           totalParticipants: { $size: "$participants" },
-
           round1Passed: {
             $size: {
               $filter: {
                 input: "$participants",
-                as: "participant",
-                cond: { $eq: ["$$participant.round1", "passed"] },
+                as: "p",
+                cond: { $eq: ["$$p.round1_quiz.status", "passed"] },
               },
             },
           },
-
-          // Calculate pending videos for round 2
-          videosPending: {
+          videosPendingReview: {
             $size: {
               $filter: {
                 input: "$participants",
-                as: "participant",
-                cond: { $eq: ["$$participant.round2", "pending"] },
+                as: "p",
+                cond: {
+                  $eq: ["$$p.round2_video.status", "submitted"],
+                },
               },
             },
           },
-
-          // Calculate scheduled interviews for round 3
           interviewsScheduled: {
             $size: {
               $filter: {
                 input: "$participants",
-                as: "participant",
-                cond: { $eq: ["$$participant.round3", "scheduled"] },
+                as: "p",
+                cond: {
+                  $eq: ["$$p.round3_meeting.status", "scheduled"],
+                },
               },
             },
           },
-
-          // Calculate completed for round 4
-          completed: {
+          tasksCompleted: {
             $size: {
               $filter: {
                 input: "$participants",
-                as: "participant",
-                cond: { $eq: ["$$participant.round4", "completed"] },
+                as: "p",
+                cond: {
+                  $eq: ["$$p.round4_task.status", "completed"],
+                },
               },
             },
           },
@@ -98,32 +135,25 @@ const getCompetitionById = async (id: string) => {
     },
   ]);
 
-  // The aggregation returns an array. If the competition was found, it will be the first element.
-  const competitionWithStats = result[0];
-
-  // If no competition was found, the result array will be empty.
-  if (!competitionWithStats) {
+  if (result.length === 0) {
     throw new AppError(StatusCodes.NOT_FOUND, "Competition not found.");
   }
 
-  return competitionWithStats;
+  // These populate calls will now work because the 'User' model is imported.
+  await User.populate(result, {
+    path: "participants.user",
+    select: "-password",
+  });
+
+  await User.populate(result, {
+    path: "createdBy",
+    select: "-password",
+  });
+
+  return result[0];
 };
 
-const joinCompetition = async (userId: string, competitionId: string) => {
-  const competition = await Competition.findById(competitionId);
-  if (!competition)
-    throw new AppError(StatusCodes.NOT_FOUND, "Competition not found");
-  competition.participants.push({
-    user: new Types.ObjectId(userId),
-    round1: "not_started",
-    round2: "not_started",
-    round3: "not_started",
-    round4: "not_started",
-    joinedAt: new Date(),
-  });
-  await competition.save();
-  return competition;
-};
+// ... other service functions
 
 const updateCompetition = async (
   id: string,
@@ -182,5 +212,4 @@ export const competitionService = {
   updateCompetition,
   deleteCompetition,
   getCompetitionStats,
-  joinCompetition,
 };

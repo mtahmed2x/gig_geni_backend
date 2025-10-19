@@ -2,34 +2,6 @@ import { model, Schema } from "mongoose";
 import { ICompetition } from "./competition.interface";
 import { ReviewStatus, Status } from "./competition.constant";
 
-const participantSchema = new Schema(
-  {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    round1: {
-      type: String,
-      enum: ["not_started", "pending", "passed", "failed"],
-      default: "not_started",
-    },
-    round2: {
-      type: String,
-      enum: ["not_started", "pending", "approved", "rejected"],
-      default: "not_started",
-    },
-    round3: {
-      type: String,
-      enum: ["not_started", "scheduled", "approved", "rejected"],
-      default: "not_started",
-    },
-    round4: {
-      type: String,
-      enum: ["not_started", "completed", "failed"],
-      default: "not_started",
-    },
-    joinedAt: { type: Date, default: Date.now },
-  },
-  { _id: false }
-);
-
 const competitionSchema = new Schema<ICompetition>(
   {
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -37,7 +9,7 @@ const competitionSchema = new Schema<ICompetition>(
     bannerImage: { type: String },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, required: true },
+    category: [{ type: String, required: true }],
     experienceLevel: { type: String },
     location: { type: String },
     workType: { type: String },
@@ -62,18 +34,14 @@ const competitionSchema = new Schema<ICompetition>(
     ],
     termsAndConditions: { type: [String], default: [] },
 
-    participants: { type: [participantSchema], default: [] },
-    status: {
-      type: String,
-      enum: Object.values(Status),
-      default: Status.Active,
+    quizSettings: {
+      passingScore: { type: Number, required: true, default: 50 },
+      timeLimit: { type: Number, required: true, default: 300 },
+      randomizeQuestions: { type: Boolean, required: true, default: false },
+      showResults: { type: Boolean, required: true, default: true },
     },
-    currentRound: { type: Number, default: 1 },
-    totalRounds: { type: Number, default: 4 },
-    totalApplicants: { type: Number, default: 1 },
-    totalParticipants: { type: Number, default: 1 },
-    completionRate: { type: Number, default: 0 },
-    views: { type: Number, default: 0 },
+
+    totalParticipants: { type: Number, default: 0 },
 
     reviewStatus: {
       type: String,
@@ -81,9 +49,25 @@ const competitionSchema = new Schema<ICompetition>(
       default: ReviewStatus.Pending,
     },
     reviewFeedback: { type: String, default: null },
+
+    status: {
+      type: String,
+      enum: Object.values(Status),
+      default: Status.Active,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true }, 
+    toObject: { virtuals: true },
+  }
 );
+
+competitionSchema.virtual("participants", {
+  ref: "Participant", // The model to use
+  localField: "_id", // Find participants where `localField`
+  foreignField: "competition", // matches `foreignField`
+});
 
 export const Competition = model<ICompetition>(
   "Competition",

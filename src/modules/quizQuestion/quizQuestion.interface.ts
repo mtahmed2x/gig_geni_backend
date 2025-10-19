@@ -11,7 +11,6 @@ export interface IQuizQuestion {
   wordLimit?: number;
   points: number;
   difficulty: "easy" | "medium" | "hard";
-  category: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -17,12 +17,6 @@ router.post(
   competitionController.createCompetition
 );
 
-router.post(
-  "/:id/join",
-  auth(UserRole.Employee),
-  competitionController.joinCompetition
-);
-
 router.get(
   "/",
   auth(UserRole.Employer, UserRole.Employee, UserRole.Admin),
@@ -44,7 +38,7 @@ router.patch(
 );
 
 router.delete(
-  "/:id",
+  "/delete/:id",
   auth(UserRole.Employer),
   competitionController.deleteCompetition
 );

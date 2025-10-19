@@ -54,7 +54,6 @@ const deleteQuizQuestion = async (id: string) => {
 
 interface GenerateQuizConfig {
   competitionId: string;
-  category: string;
   description: string;
   totalQuestions: number;
   difficulty: "easy" | "medium" | "hard";
@@ -80,7 +79,7 @@ const generateQuizQuestions = async (payload: GenerateQuizConfig) => {
   });
   const {
     competitionId,
-    category,
+
     description,
     totalQuestions,
     difficulty,
@@ -101,7 +100,7 @@ Generate a set of quiz questions based on the following competition details:
 
 Competition Title: ${competition.title}
 Description: ${description}
-Category: ${category}
+
 Experience Level: ${competition.experienceLevel}
 Skills Tested: ${competition.skillsTested}
 Project Brief: ${competition.projectBrief}
@@ -121,9 +120,8 @@ Instructions:
    - options (only for single/multiple/true_false, each with text and isCorrect if applicable)
    - correctAnswer (string | string[] | boolean depending on type)
    - wordLimit (for descriptive/broad, use ${shortWordLimit} for short and ${broadWordLimit} for broad)
-   - points (integer, e.g., ${pointsPerQuestion})
+   - points (integer) <-- **IMPORTANT: This value MUST be exactly ${pointsPerQuestion} for EVERY question.**
    - difficulty ("easy", "medium", "hard") — use ${difficulty}
-   - category (same as competition category)
 4. Ensure questions are practical and skill-based.
 5. Return only valid JSON array of objects matching this structure:
 
@@ -135,7 +133,6 @@ Instructions:
   wordLimit?: number;
   points: number;
   difficulty: "easy" | "medium" | "hard";
-  category: string;
 }
 `;
 

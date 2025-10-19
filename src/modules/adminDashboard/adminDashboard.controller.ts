@@ -72,22 +72,27 @@ const deleteAdminDashboard = handleAsync(
 );
 
 const getAllUser = handleAsync(async (req: Request, res: Response) => {
-  const result = await adminDashboardService.getAllUser(req.query);
+  const { data, meta } = await adminDashboardService.getAllUser(req.query);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: "All Users retrieved successfully",
-    data: result,
+    data: data,
+    meta: { ...meta },
   });
 });
 
 const getAllCompetition = handleAsync(async (req: Request, res: Response) => {
-  const result = await adminDashboardService.getAllCompetition(req.query);
+  const { data, meta } = await adminDashboardService.getAllCompetition(
+    req.query
+  );
+
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: "All Competitions retrieved successfully",
-    data: result,
+    data: data,
+    meta: { ...meta },
   });
 });
 

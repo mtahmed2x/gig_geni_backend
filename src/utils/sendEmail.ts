@@ -8,7 +8,7 @@ interface SendEmailOptions {
 
 export const sendEmail = async (options: SendEmailOptions) => {
   await mailTransporter.sendMail({
-    from: `"Pharma App" <${process.env.SMTP_USER}>`,
+    from: `"Giggini" <${process.env.SMTP_USER}>`,
     to: options.to,
     subject: options.subject,
     html: options.html,

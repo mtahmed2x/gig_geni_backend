@@ -63,10 +63,22 @@ const deleteParticipant = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
+const uploadVideo = handleAsync(async (req: Request, res: Response) => {
+  req.body.userId = req.user!._id;
+  const result = await participantService.uploadVideo(req.body);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Video uploaded successfully",
+    data: result,
+  });
+});
+
 export const participantController = {
   createParticipant,
   getAllParticipant,
   getParticipantById,
   updateParticipant,
   deleteParticipant,
+  uploadVideo,
 };

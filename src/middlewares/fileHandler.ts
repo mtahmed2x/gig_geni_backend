@@ -24,6 +24,10 @@ export const fileHandler = async (
     const fileFields = [
       { fieldName: "bannerImage", folder: "gig-geni/competition/bannerImage" },
       { fieldName: "avatar", folder: "gig-geni/user/avatar" },
+      {
+        fieldName: "videoUrl",
+        folder: "gig-geni/participants/videoUrl",
+      },
     ];
 
     const files = req.files as FileArray | undefined;

@@ -6,6 +6,8 @@ import { otpService } from "../otp/otp.service";
 import { generateAuthTokens, verifyRefreshToken } from "../../utils/jwtUtils";
 import { User } from "../user/user.models";
 import { sendEmail } from "../../utils/sendEmail";
+import path from "path";
+import fs from "fs";
 
 const register = async (payload: Partial<IUser>) => {
   const user = await userService.createUser(payload);
@@ -25,10 +27,17 @@ const register = async (payload: Partial<IUser>) => {
     role: user.role,
   });
 
+  const templatePath = path.join(__dirname, "../../../public/otpMail.html");
+
+  const emailHtml = fs
+    .readFileSync(templatePath, "utf8")
+    .replace("{{otp}}", otp)
+    .replace("{{email}}", user.email);
+
   await sendEmail({
     to: user.email,
     subject: "Your OTP Code",
-    html: `<p>Your OTP code is <b>${otp}</b>. It expires in 5 minutes.</p>`,
+    html: emailHtml,
   });
 
   const { password, ...safeUser } = user.toObject();

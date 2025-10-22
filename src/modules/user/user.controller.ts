@@ -36,6 +36,7 @@ const getUserById = handleAsync(async (req: Request, res: Response) => {
 });
 
 const updateUser = handleAsync(async (req: Request, res: Response) => {
+  console.log("Body" + req);
   const result = await userService.updateUser(
     req.params.id || req.user!._id.toString(),
     req.body

@@ -23,6 +23,7 @@ export const fileHandler = async (
   try {
     const fileFields = [
       { fieldName: "bannerImage", folder: "gig-geni/competition/bannerImage" },
+      { fieldName: "avatar", folder: "gig-geni/user/avatar" },
     ];
 
     const files = req.files as FileArray | undefined;
@@ -31,8 +32,6 @@ export const fileHandler = async (
       await Promise.all(
         fileFields.map(async ({ fieldName, folder }) => {
           const file = files[fieldName];
-          console.log(file);
-
           if (file) {
             if (Array.isArray(file)) {
               const fileUrls = await Promise.all(
@@ -47,7 +46,6 @@ export const fileHandler = async (
                 folder
               );
               req.body[fieldName] = fileUrl;
-              console.log(req.body);
             }
           }
         })

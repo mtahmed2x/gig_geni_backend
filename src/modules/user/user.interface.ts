@@ -3,20 +3,21 @@ import { Gender, UserRole } from "./user.constant";
 
 export interface IUser {
   _id: Types.ObjectId;
-  deviceTokens: string[];
 
   email: string;
   password: string;
   role: UserRole;
+  name: string;
   verified: boolean;
   active: boolean;
   suspended: boolean;
-  name: string;
+  deviceTokens: string[];
+
+  // mandatory for all users
+  phoneNumber?: string | null;
   dateOfBirth?: string | null;
   gender?: Gender | null;
   nationality?: string | null;
-  aboutMe?: string | null;
-  languages: string[];
   address?: {
     homeAddress?: string | null;
     city?: string | null;
@@ -24,37 +25,24 @@ export interface IUser {
     country?: string | null;
     zipCode?: string | null;
   };
-  phoneNumber?: string | null;
+
+  aboutMe?: string | null;
+  languages?: string[];
 
   // For employer
-  linkedinProfile?: string | null;
-  personalWebsite?: string | null;
-
   company?: {
     name?: string;
     industry?: string;
-    companySze?: string;
-    foundedYear?: string;
+    description?: string;
     website?: string;
     headQuarters?: string;
-    description?: string;
-    teamMembers?: string[];
-    totalCompetitions?: number;
+    companySze?: string;
+    foundedYear?: string;
   };
   hiringPreferences?: string[];
 
   // For Employee
-  jobPreference?: string | null;
-  salaryExpectations?: string | null;
-  experience: {
-    company: string;
-    jobTitle: string;
-    startDate: string;
-    endDate?: string;
-    currentlyWorking: boolean;
-    jobDescription?: string;
-  }[];
-
+  skills: string[];
   education: {
     institution: string;
     degree: string;
@@ -64,7 +52,18 @@ export interface IUser {
     endYear: string;
     description?: string;
   }[];
-  skills: string[];
+  experience: {
+    company: string;
+    jobTitle: string;
+    startDate: string;
+    endDate?: string;
+    currentlyWorking: boolean;
+    jobDescription?: string;
+  }[];
+  jobPreference?: string | null;
+  salaryExpectations?: string | null;
+  linkedinProfile?: string | null;
+  personalWebsite?: string | null;
 
   profileCompletionPercentage: number;
   isProfileComplete: boolean;

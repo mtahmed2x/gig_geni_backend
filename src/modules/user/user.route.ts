@@ -2,6 +2,9 @@ import { Router } from "express";
 import { userController } from "./user.controller";
 import { auth } from "../../middlewares/auth";
 import { UserRole } from "./user.constant";
+import fileUpload from "express-fileupload";
+import fileHandler from "../../middlewares/fileHandler";
+import parseData from "../../middlewares/parseData";
 
 const router: Router = Router();
 
@@ -15,6 +18,9 @@ router.get("/:id", userController.getUserById);
 router.patch("/update/:id", auth(UserRole.Admin), userController.updateUser);
 router.patch(
   "/update",
+  fileUpload(),
+  fileHandler,
+  parseData(),
   auth(UserRole.Employee, UserRole.Employer),
   userController.updateUser
 );

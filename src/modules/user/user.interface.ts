@@ -11,6 +11,7 @@ export interface IUser {
   verified: boolean;
   active: boolean;
   suspended: boolean;
+  avatar: string;
   deviceTokens: string[];
 
   // mandatory for all users

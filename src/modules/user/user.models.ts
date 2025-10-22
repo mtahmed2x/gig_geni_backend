@@ -89,6 +89,10 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+    avatar: {
+      type: String,
+      trim: true,
+    },
     verified: {
       type: Boolean,
       default: false,

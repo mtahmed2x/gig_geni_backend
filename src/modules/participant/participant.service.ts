@@ -1,4 +1,5 @@
 import { Competition } from "../competition/competition.models";
+import { RoundStatus } from "./participant.constant";
 import { IParticipant } from "./participant.interface";
 import { Participant } from "./participant.models";
 
@@ -42,10 +43,33 @@ const deleteParticipant = async (id: string) => {
   return await Participant.findByIdAndDelete(id);
 };
 
+const uploadVideo = async (payload: {
+  videoUrl: string;
+  userId: string;
+  competitionId: string;
+}) => {
+  const { videoUrl, userId, competitionId } = payload;
+
+  const participant = await Participant.findOneAndUpdate(
+    { user: userId, competition: competitionId },
+    {
+      $set: {
+        "round2_video.videoUrl": videoUrl,
+        "round2_video.status": RoundStatus.SUBMITTED,
+        "round2_video.submittedAt": new Date(),
+      },
+    },
+    { new: true }
+  );
+
+  return participant;
+};
+
 export const participantService = {
   createParticipant,
   getAllParticipant,
   getParticipantById,
   updateParticipant,
   deleteParticipant,
+  uploadVideo,
 };

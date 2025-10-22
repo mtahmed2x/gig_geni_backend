@@ -13,21 +13,17 @@ router.post(
   auth(UserRole.Employee),
   participantController.createParticipant
 );
-router.post(
-  "/upload-video",
-  fileUpload(),
-  fileHandler,
-  parseData(),
-  auth(UserRole.Employee),
-  participantController.uploadVideo
-);
 router.get(
   "/",
   auth(UserRole.Employee, UserRole.Employer, UserRole.Admin),
   participantController.getAllParticipant
 );
 router.get("/:id", participantController.getParticipantById);
-router.patch("/:id", participantController.updateParticipant);
+router.patch(
+  "/update/:id",
+  auth(UserRole.Employee),
+  participantController.updateParticipant
+);
 router.delete("/:id", participantController.deleteParticipant);
 
 export const participantRoutes = router;

@@ -11,6 +11,7 @@ import { pinoHttp } from 'pino-http';
 import { logger } from './utils/logger';
 
 const allowedOrigins = [
+  'http://localhost:3000',
   'https://giggeni.com',
   'https://www.giggeni.com',
   'https://admin.giggeni.com',

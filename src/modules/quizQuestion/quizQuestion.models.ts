@@ -10,6 +10,7 @@ const quizQuestionSchema = new Schema<IQuizQuestion>(
       required: true,
     },
     question: { type: String, required: true },
+    isMarkdown: {type: Boolean, required: true, default: false },
     type: {
       type: String,
       enum: Object.values(QuestionType),

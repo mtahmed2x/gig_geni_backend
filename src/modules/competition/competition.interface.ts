@@ -29,6 +29,7 @@ export interface ICompetition {
   termsAndConditions: string[];
 
   quizSettings: {
+    totalPoints: number;
     passingScore: number;
     timeLimit: number;
     randomizeQuestions: boolean;

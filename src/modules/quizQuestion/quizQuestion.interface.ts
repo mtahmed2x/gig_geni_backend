@@ -5,6 +5,7 @@ export interface IQuizQuestion {
   _id: Types.ObjectId;
   competition: Types.ObjectId;
   question: string;
+  isMarkdown: boolean;
   type: QuestionType;
   options?: { text: string; isCorrect?: boolean }[];
   correctAnswer?: string | string[] | boolean;

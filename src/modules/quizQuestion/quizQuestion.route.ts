@@ -14,7 +14,7 @@ router.post(
 router.post(
   "/create-multiple",
   auth(UserRole.Employer),
-  quizQuestionController.addMultipleQuizQuestions
+  quizQuestionController.createMultipleQuizQuestions
 );
 
 router.post(

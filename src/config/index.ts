@@ -23,6 +23,12 @@ export const config = {
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'refresh',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
+  redis: {
+    host: process.env.REDIS_HOST || '0.0.0.0',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  },
 };
 
 export const mailTransporter = nodemailer.createTransport({

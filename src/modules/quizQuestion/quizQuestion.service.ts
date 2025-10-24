@@ -20,6 +20,7 @@ const createMultipleQuizQuestions = async (
   const docsToInsert = questions.map((q) => ({
     ...q,
     competition: new Types.ObjectId(competitionId),
+    isMarkdown: false,
   }));
 
   if (docsToInsert.length === 0) {

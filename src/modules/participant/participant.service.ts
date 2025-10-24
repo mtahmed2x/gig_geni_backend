@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Competition } from '../competition/competition.models';
 import { IParticipant } from './participant.interface';
 import { Participant } from './participant.models';
+import { QuizAttempt } from '../quizAttempt/quizAttempt.models';
 
 const createParticipant = async (payload: Partial<IParticipant>) => {
   const participant = await Participant.create(payload);
@@ -41,7 +42,8 @@ const deleteParticipant = async (id: string) => {
 const checkParticipant = async (payload: { userId: string; competitionId: string }) => {
   const { userId, competitionId } = payload;
   const participantExists = await Participant.exists({ user: userId, competition: competitionId });
-  if (participantExists) {
+  const quizAttempted = await QuizAttempt.exists({ userId, competitionId });
+  if (participantExists && quizAttempted) {
     return {
       statusCode: StatusCodes.CONFLICT,
       message: 'You had already participated in this quiz',

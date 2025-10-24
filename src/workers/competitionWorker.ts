@@ -32,5 +32,5 @@ worker.on('failed', (job: Job | undefined, err: Error) => {
   logger.error({ jobId: job?.id, jobName: job?.name, error: err }, 'Job failed.');
 });
 
-process.on('SIGINT', () => worker.close());
-process.on('SIGTERM', () => worker.close());
+// process.on('SIGINT', () => worker.close());
+// process.on('SIGTERM', () => worker.close());

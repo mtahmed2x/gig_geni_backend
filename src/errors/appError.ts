@@ -1,15 +1,25 @@
+import { StatusCodes } from 'http-status-codes';
+interface AppErrorOptions {
+  cause?: unknown;
+  isOperational?: boolean;
+}
+
 export class AppError extends Error {
-  public statusCode: number;
-  public success: boolean;
+  public readonly statusCode: StatusCodes;
+  public readonly success: boolean;
+  public readonly isOperational: boolean;
 
-  constructor(statusCode: number, message: string, stack = '') {
-    super(message);
+  constructor(statusCode: StatusCodes, message: string, options: AppErrorOptions = {}) {
+    super(message, { cause: options.cause });
+
     this.statusCode = statusCode;
-    this.success = false; 
-    this.name = this.constructor.name; 
+    this.success = false;
+    this.name = this.constructor.name;
 
-    if (stack) {
-      this.stack = stack;
+    this.isOperational = options.isOperational ?? (options.cause ? false : true);
+
+    if (options.cause instanceof Error && options.cause.stack) {
+      this.stack = options.cause.stack;
     } else {
       Error.captureStackTrace(this, this.constructor);
     }

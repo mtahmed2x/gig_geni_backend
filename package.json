@@ -8,7 +8,7 @@
     "dev:worker:competition": "ts-node-dev --respawn --transpile-only src/workers/competitionWorker.ts | pino-pretty",
     "dev": "concurrently --kill-others --names \"API,COMPETITION\" \"npm:dev:api\" \"npm:dev:worker:competition\"",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js",
+    "start": "bash start-prod.sh",
     "generate": "ts-node generateModule.ts"
   },
   "keywords": [],

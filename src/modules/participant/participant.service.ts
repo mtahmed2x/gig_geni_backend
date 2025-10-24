@@ -1,7 +1,7 @@
-import { Competition } from "../competition/competition.models";
-import { RoundStatus } from "./participant.constant";
-import { IParticipant } from "./participant.interface";
-import { Participant } from "./participant.models";
+import { StatusCodes } from 'http-status-codes';
+import { Competition } from '../competition/competition.models';
+import { IParticipant } from './participant.interface';
+import { Participant } from './participant.models';
 
 const createParticipant = async (payload: Partial<IParticipant>) => {
   const participant = await Participant.create(payload);
@@ -21,21 +21,16 @@ const getAllParticipant = async (payload: {
   if (competitionId) filter.competition = competitionId;
   if (mine && userId) {
     filter.user = userId;
-    return await Participant.findOne(filter)
-      .populate("user competition")
-      .lean();
+    return await Participant.findOne(filter).populate('user competition').lean();
   }
-  return await Participant.find(filter).populate("user competition").lean();
+  return await Participant.find(filter).populate('user competition').lean();
 };
 
 const getParticipantById = async (id: string) => {
   return await Participant.findById(id).lean();
 };
 
-const updateParticipant = async (
-  id: string,
-  payload: Partial<IParticipant>
-) => {
+const updateParticipant = async (id: string, payload: Partial<IParticipant>) => {
   return await Participant.findByIdAndUpdate(id, payload, { new: true });
 };
 
@@ -43,26 +38,21 @@ const deleteParticipant = async (id: string) => {
   return await Participant.findByIdAndDelete(id);
 };
 
-const uploadVideo = async (payload: {
-  videoUrl: string;
-  userId: string;
-  competitionId: string;
-}) => {
-  const { videoUrl, userId, competitionId } = payload;
-
-  const participant = await Participant.findOneAndUpdate(
-    { user: userId, competition: competitionId },
-    {
-      $set: {
-        "round2_video.videoUrl": videoUrl,
-        "round2_video.status": RoundStatus.SUBMITTED,
-        "round2_video.submittedAt": new Date(),
-      },
-    },
-    { new: true }
-  );
-
-  return participant;
+const checkParticipant = async (payload: { userId: string; competitionId: string }) => {
+  const { userId, competitionId } = payload;
+  const participantExists = await Participant.exists({ user: userId, competition: competitionId });
+  if (participantExists) {
+    return {
+      statusCode: StatusCodes.CONFLICT,
+      message: 'You had already participated in this quiz',
+      data: { canParticipate: false },
+    };
+  }
+  return {
+    statusCode: StatusCodes.OK,
+    message: 'Allowed to participate in this quiz',
+    data: { canParticipate: true },
+  };
 };
 
 export const participantService = {
@@ -71,5 +61,5 @@ export const participantService = {
   getParticipantById,
   updateParticipant,
   deleteParticipant,
-  uploadVideo,
+  checkParticipant,
 };

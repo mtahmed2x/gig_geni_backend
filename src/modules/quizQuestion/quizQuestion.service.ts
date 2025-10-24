@@ -5,11 +5,11 @@ import { IQuizQuestion } from './quizQuestion.interface';
 import { QuizQuestion } from './quizQuestion.models';
 import { Types } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { updateQuizPoints } from '../competition/competition.service';
+import { competitionQueue } from '../../queues';
 
 const createQuizQuestion = async (payload: Partial<IQuizQuestion>) => {
   const question = await QuizQuestion.create(payload);
-  await updateQuizPoints(question.competition.toString());
+  await competitionQueue.add('update-total-points', { competitionId: question.competition });
   return question;
 };
 
@@ -26,7 +26,7 @@ const createMultipleQuizQuestions = async (
     throw new AppError(StatusCodes.BAD_REQUEST, 'No question to add');
   }
   const newQuestions = await QuizQuestion.insertMany(docsToInsert);
-  await updateQuizPoints(competitionId);
+  await competitionQueue.add('update-total-points', { competitionId });
   return newQuestions;
 };
 

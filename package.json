@@ -4,7 +4,9 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts | pino-pretty",
+    "dev:api": "ts-node-dev --respawn --transpile-only src/server.ts | pino-pretty",
+    "dev:worker:competition": "ts-node-dev --respawn --transpile-only src/workers/competitionWorker.ts | pino-pretty",
+    "dev": "concurrently --kill-others --names \"API,COMPETITION\" \"npm:dev:api\" \"npm:dev:worker:competition\"",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "generate": "ts-node generateModule.ts"
@@ -50,6 +52,7 @@
     "@types/nodemailer": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "concurrently": "^9.2.1",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

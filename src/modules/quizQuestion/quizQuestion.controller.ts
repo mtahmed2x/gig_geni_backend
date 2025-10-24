@@ -14,9 +14,9 @@ const createQuizQuestion = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
-const addMultipleQuizQuestions = handleAsync(
+const createMultipleQuizQuestions = handleAsync(
   async (req: Request, res: Response) => {
-    const result = await quizQuestionService.addMultipleQuizQuestions(
+    const result = await quizQuestionService.createMultipleQuizQuestions(
       req.body.competitionId,
       req.body.questions
     );
@@ -90,7 +90,7 @@ const deleteQuizQuestion = handleAsync(async (req: Request, res: Response) => {
 
 export const quizQuestionController = {
   createQuizQuestion,
-  addMultipleQuizQuestions,
+  createMultipleQuizQuestions,
   generateQuizQuestions,
   getAllQuizQuestion,
   getQuizQuestionById,

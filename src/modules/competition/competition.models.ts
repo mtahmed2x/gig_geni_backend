@@ -35,6 +35,7 @@ const competitionSchema = new Schema<ICompetition>(
     termsAndConditions: { type: [String], default: [] },
 
     quizSettings: {
+      totalPoints: {type: Number, required: true, default: 0 },
       passingScore: { type: Number, required: true, default: 50 },
       timeLimit: { type: Number, required: true, default: 300 },
       randomizeQuestions: { type: Boolean, required: true, default: false },

@@ -1,22 +1,21 @@
-import { StatusCodes } from "http-status-codes";
-import { AppError } from "../../errors/appError";
-import { Competition } from "../competition/competition.models";
-import { IQuizQuestion } from "./quizQuestion.interface";
-import { QuizQuestion } from "./quizQuestion.models";
-import { Types } from "mongoose";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { StatusCodes } from 'http-status-codes';
+import { AppError } from '../../errors/appError';
+import { Competition } from '../competition/competition.models';
+import { IQuizQuestion } from './quizQuestion.interface';
+import { QuizQuestion } from './quizQuestion.models';
+import { Types } from 'mongoose';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { updateQuizPoints } from '../competition/competition.service';
 
 const createQuizQuestion = async (payload: Partial<IQuizQuestion>) => {
-  const quiz = await QuizQuestion.create(payload);
-  const getAllQuizQuestions = getAllQuizQuestion({
-    competition: quiz.competition.toString(),
-  });
-  return getAllQuizQuestions;
+  const question = await QuizQuestion.create(payload);
+  await updateQuizPoints(question.competition.toString());
+  return question;
 };
 
-const addMultipleQuizQuestions = async (
+const createMultipleQuizQuestions = async (
   competitionId: string,
-  questions: Partial<IQuizQuestion>[]
+  questions: Partial<IQuizQuestion>[],
 ) => {
   const docsToInsert = questions.map((q) => ({
     ...q,
@@ -24,10 +23,11 @@ const addMultipleQuizQuestions = async (
   }));
 
   if (docsToInsert.length === 0) {
-    return await QuizQuestion.find({ competition: competitionId }).lean();
+    throw new AppError(StatusCodes.BAD_REQUEST, 'No question to add');
   }
-  await QuizQuestion.insertMany(docsToInsert);
-  return await QuizQuestion.find({ competition: competitionId }).lean();
+  const newQuestions = await QuizQuestion.insertMany(docsToInsert);
+  await updateQuizPoints(competitionId);
+  return newQuestions;
 };
 
 const getAllQuizQuestion = async (payload: { competition?: string }) => {
@@ -41,10 +41,7 @@ const getQuizQuestionById = async (id: string) => {
   return await QuizQuestion.findById(id).lean();
 };
 
-const updateQuizQuestion = async (
-  id: string,
-  payload: Partial<IQuizQuestion>
-) => {
+const updateQuizQuestion = async (id: string, payload: Partial<IQuizQuestion>) => {
   return await QuizQuestion.findByIdAndUpdate(id, payload, { new: true });
 };
 
@@ -56,7 +53,7 @@ interface GenerateQuizConfig {
   competitionId: string;
   description: string;
   totalQuestions: number;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: 'easy' | 'medium' | 'hard';
   distribution: {
     single: number;
     multiple: number;
@@ -72,9 +69,9 @@ interface GenerateQuizConfig {
 const generateQuizQuestions = async (payload: GenerateQuizConfig) => {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: 'gemini-2.0-flash',
     generationConfig: {
-      responseMimeType: "application/json",
+      responseMimeType: 'application/json',
     },
   });
   const {
@@ -91,7 +88,7 @@ const generateQuizQuestions = async (payload: GenerateQuizConfig) => {
 
   const competition = await Competition.findById(competitionId).lean();
   if (!competition) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Competition not found");
+    throw new AppError(StatusCodes.NOT_FOUND, 'Competition not found');
   }
 
   const prompt = `
@@ -137,26 +134,23 @@ Instructions:
 `;
 
   const result = await model.generateContent(prompt);
-  const response = await result.response;
+  const response = result.response;
   const rawContent = response.text();
 
-  let questions: Omit<
-    IQuizQuestion,
-    "_id" | "competition" | "createdAt" | "updatedAt"
-  >[] = [];
+  let questions: Omit<IQuizQuestion, '_id' | 'competition' | 'createdAt' | 'updatedAt'>[] = [];
 
   try {
     questions = JSON.parse(rawContent);
     return questions;
   } catch (err) {
-    console.error("Failed to parse AI response:", err, rawContent);
-    throw new Error("AI returned invalid JSON");
+    console.error('Failed to parse AI response:', err, rawContent);
+    throw new Error('AI returned invalid JSON');
   }
 };
 
 export const quizQuestionService = {
   createQuizQuestion,
-  addMultipleQuizQuestions,
+  createMultipleQuizQuestions,
   getAllQuizQuestion,
   getQuizQuestionById,
   updateQuizQuestion,

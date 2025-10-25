@@ -53,8 +53,10 @@ const getAllCompetition = async (payload: {
     return await Competition.find(query).populate(populateOptions).lean({ virtuals: true });
   }
 
-  // Default case: get all competitions
-  return await Competition.find({}).populate(populateOptions).lean({ virtuals: true });
+  return await Competition.find({})
+    .sort({ status: 1, createdAt: -1 })
+    .populate(populateOptions)
+    .lean({ virtuals: true });
 };
 
 const getCompetitionById = async (id: string) => {

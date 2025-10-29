@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { generateOtp, hashOtp } from '../../utils/otpUtils';
 import { Otp } from './otp.models';
 
-const OTP_EXPIRATION_MINUTES = 20;
+const OTP_EXPIRATION_MINUTES = 15;
 
 const createOtp = async (userId: Types.ObjectId) => {
   const otp = generateOtp(6);

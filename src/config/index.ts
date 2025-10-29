@@ -22,6 +22,8 @@ export const config = {
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'refresh',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    resetSecret: process.env.JWT_RESET_SECRET || 'reset',
+    resetExpiresIn: process.env.JWT_RESET_EXPIRES_IN || '15m',
   },
   redis: {
     host: process.env.REDIS_HOST || '0.0.0.0',

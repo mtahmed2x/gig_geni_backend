@@ -1,14 +1,9 @@
-import { Request, Response } from "express";
-import { handleAsync } from "../../utils/handleAsync";
-import { authService } from "./auth.service";
-import { sendResponse } from "../../utils/sendResponse";
-import { StatusCodes } from "http-status-codes";
-import {
-  loginSchema,
-  logoutSchema,
-  registerSchema,
-  verifyOTPSchema,
-} from "./auth.dto";
+import { Request, Response } from 'express';
+import { handleAsync } from '../../utils/handleAsync';
+import { authService } from './auth.service';
+import { sendResponse } from '../../utils/sendResponse';
+import { StatusCodes } from 'http-status-codes';
+import { loginSchema, logoutSchema, registerSchema, verifyOTPSchema } from './auth.dto';
 
 const register = handleAsync(async (req: Request, res: Response) => {
   registerSchema.parse(req.body);
@@ -16,21 +11,59 @@ const register = handleAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     success: true,
-    message: "User registered successfully",
+    message: 'User registered successfully',
+    data: result,
+  });
+});
+
+const login = handleAsync(async (req: Request, res: Response) => {
+  loginSchema.parse(req.body);
+  const result = await authService.login(req.body.email, req.body.password, req.body.deviceTokens);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Logged in successfully',
     data: result,
   });
 });
 
 const verifyOTP = handleAsync(async (req: Request, res: Response) => {
   verifyOTPSchema.parse(req.body);
-  const result = await authService.verifyOTP(
-    req.user!._id.toString(),
-    req.body.otp
-  );
+  const result = await authService.verifyOTP(req.user!._id.toString(), req.body.otp, req.body.type);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Otp verified successfully",
+    message: 'Otp verified successfully',
+    data: result,
+  });
+});
+
+const refresh = handleAsync(async (req: Request, res: Response) => {
+  const result = await authService.refresh(req.body.token as string);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Refresh token fetched successfully',
+    data: result,
+  });
+});
+
+const forgotPassword = handleAsync(async (req: Request, res: Response) => {
+  const result = await authService.forgotPassword(req.body.email as string);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Password reset OTP sent successfully',
+    data: result,
+  });
+});
+
+const resetPassword = handleAsync(async (req: Request, res: Response) => {
+  const result = await authService.resetPassword(req.user!._id.toString(), req.body.newPassword);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Password reset successfully',
     data: result,
   });
 });
@@ -41,32 +74,14 @@ const resendOTP = handleAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Otp resend successfully",
-    data: result,
-  });
-});
-
-const login = handleAsync(async (req: Request, res: Response) => {
-  loginSchema.parse(req.body);
-  const result = await authService.login(
-    req.body.email,
-    req.body.password,
-    req.body.deviceTokens
-  );
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Logged in successfully",
+    message: 'Otp resend successfully',
     data: result,
   });
 });
 
 const logout = handleAsync(async (req: Request, res: Response) => {
   logoutSchema.parse(req.body);
-  const result = await authService.logout(
-    req.user!._id.toString(),
-    req.body.deviceToken
-  );
+  const result = await authService.logout(req.user!._id.toString(), req.body.deviceToken);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -75,21 +90,13 @@ const logout = handleAsync(async (req: Request, res: Response) => {
   });
 });
 
-const refresh = handleAsync(async (req: Request, res: Response) => {
-  const result = await authService.refresh(req.body.token as string);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Refresh token fetched successfully",
-    data: result,
-  });
-});
-
 export const authController = {
   register,
-  verifyOTP,
-  resendOTP,
   login,
+  verifyOTP,
   refresh,
+  forgotPassword,
+  resetPassword,
+  resendOTP,
   logout,
 };

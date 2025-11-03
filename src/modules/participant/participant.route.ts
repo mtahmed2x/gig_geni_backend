@@ -13,7 +13,11 @@ router.get(
   participantController.getAllParticipant,
 );
 router.get('/:id', participantController.getParticipantById);
-router.patch('/update/:id', auth(UserRole.Employee), participantController.updateParticipant);
+router.patch(
+  '/update/:id',
+  auth(UserRole.Employee, UserRole.Employer),
+  participantController.updateParticipant,
+);
 router.delete('/:id', participantController.deleteParticipant);
 
 export const participantRoutes = router;
